@@ -1,0 +1,84 @@
+local general = ui.create("General", "Defensive - Anti-Aim")
+local defensivepitch = ui.create("General", "Defensive-Pitch")
+local defensiveyaw = ui.create("General", "Defensive-Yaw")
+local defensiveenable = general:switch("Defensive-Pitch")
+local defensiveyawenable = general:switch("Defensive-Yaw")
+local defensivemode = defensivepitch:combo("Defensive Pitch Mode", {"Neverlose"})
+local pitchmode = defensivepitch:combo("Pitch Mode", {"Custom", "Left/Right", "Random Left/Right"})
+local pitchslider = defensivepitch:slider("Pitch", -89, 89, 0)
+local pitchleft = defensivepitch:slider("Pitch Left", -89, 89, 0)
+local pitchright = defensivepitch:slider("Pitch Right", -89, 89, 0)
+local randompitch1 = defensivepitch:slider("Pitch Random Left", -89, 89, 0)
+local randompitch2 = defensivepitch:slider("Pitch Random Right", -89, 89, 0)
+
+--defensive yaw
+
+local defensivemodeyaw = defensiveyaw:combo("Defensive Yaw Mode", {"Neverlose"})
+local modeyaw = defensiveyaw:combo("Yaw Mode", {"Custom", "Left/Right", "Random Left/Right"})
+local slideryaw = defensiveyaw:slider("Yaw Add", -180, 180, 0)
+local leftyaw = defensiveyaw:slider("Yaw Left", -180, 180, 0)
+local rightyaw = defensiveyaw:slider("Yaw Right", -180, 180, 0)
+
+local randomyaw1 = defensiveyaw:slider("Yaw Random Left", -180, 180, 0)
+local randomyaw2 = defensiveyaw:slider("Yaw Random Right", -180, 180, 0)
+
+
+local checker = 0
+local defensive = 0
+function defensive_yaw()
+    local me = entity.get_local_player()
+    if me == nil then return end
+    local inverter = me.m_flPoseParameter[11] * 120 - 60 < 0 and true or false
+    local tickbase = me.m_nTickBase
+    defensive = math.abs(tickbase - checker)
+    checker = math.max(tickbase, checker or 0)
+                        if defensiveenable:get() then
+                            ui.find("Aimbot", "Anti Aim", "Angles", "Yaw", "Hidden"):set(true)
+                        if defensivemode:get() == "Neverlose" and pitchmode:get() == "Left/Right" then
+                            rage.antiaim:override_hidden_pitch(inverter and pitchleft:get() or pitchright:get())
+                        elseif defensivemode:get() == "Neverlose" and pitchmode:get() == "Custom" then
+                            rage.antiaim:override_hidden_pitch(pitchslider:get())
+                        elseif defensivemode:get() == "Neverlose" and pitchmode:get() == "Random Left/Right" then
+                            rage.antiaim:override_hidden_pitch(math.random(randompitch1:get(), randompitch2:get()))	
+                        end
+                    end
+                    if defensiveyawenable:get() then
+                        ui.find("Aimbot", "Anti Aim", "Angles", "Yaw", "Hidden"):set(true)
+                        if defensivemodeyaw:get() == "Neverlose" and modeyaw:get() == "Left/Right" then
+                            rage.antiaim:override_hidden_yaw_offset(inverter and rightyaw:get() or leftyaw:get())
+                        elseif defensivemodeyaw:get() == "Neverlose" and modeyaw:get() == "Custom" then
+                            rage.antiaim:override_hidden_yaw_offset(slideryaw:get())
+                        elseif defensivemodeyaw:get() == "Neverlose" and modeyaw:get() == "Random Left/Right" then
+                            rage.antiaim:override_hidden_yaw_offset(math.random(randomyaw1:get(), randomyaw2:get()))		
+                        end
+                    elseif not defensiveenable:get() and not defensiveyawenable:get() then
+                        ui.find("Aimbot", "Anti Aim", "Angles", "Yaw", "Hidden"):set(false)
+                    end
+                end
+
+    events.render:set(function()
+        defensive_yaw()
+        defensivemode:visibility(defensiveenable:get())
+        pitchmode:visibility(defensivemode:get() == "Custom" or defensivemode:get() == "Neverlose" and defensiveenable:get())
+        pitchslider:visibility(defensiveenable:get() and pitchmode:get() == "Custom" and defensivemode:get() ~= "Custom")
+        pitchleft:visibility(defensiveenable:get() and pitchmode:get() == "Left/Right")
+        pitchright:visibility(defensiveenable:get() and pitchmode:get() == "Left/Right")
+        defensivemodeyaw:visibility(defensiveyawenable:get())
+        modeyaw:visibility(defensivemodeyaw:get() == "Custom" or defensivemodeyaw:get() == "Neverlose" and defensiveyawenable:get())
+        slideryaw:visibility(defensiveyawenable:get() and modeyaw:get() == "Custom")
+        leftyaw:visibility(defensiveyawenable:get() and modeyaw:get() == "Left/Right")
+        rightyaw:visibility(defensiveyawenable:get() and modeyaw:get() == "Left/Right")
+        randomyaw1:visibility(defensiveyawenable:get() and modeyaw:get() == "Random Left/Right")
+        randomyaw2:visibility(defensiveyawenable:get() and modeyaw:get() == "Random Left/Right")
+        randompitch1:visibility(defensiveenable:get() and pitchmode:get() == "Random Left/Right")
+        randompitch2:visibility(defensiveenable:get() and pitchmode:get() == "Random Left/Right")
+    end)
+    local gradient = require("neverlose/gradient")
+    events.render:set(function()
+        gradient_animation4 = gradient.text_animate("Defensive.yaw", - 1, {
+            color(160,160,255), 
+            color(255,255,255)})
+      
+            local side = ui.sidebar(gradient_animation4:get_animated_text(), "bomb")
+            gradient_animation4:animate()
+      end)
